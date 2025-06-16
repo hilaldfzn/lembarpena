@@ -20,4 +20,17 @@ python3.9 manage.py migrate --noinput
 echo "Collecting static files..."
 python3.9 manage.py collectstatic --noinput --clear
 
+# Copy static files to the correct directory for Vercel
+echo "Copying static files for Vercel..."
+mkdir -p staticfiles/static
+mkdir -p staticfiles/media
+
+# Ensure static files are in the right place
+if [ -d "staticfiles" ]; then
+    echo "Static files directory created successfully"
+    ls -la staticfiles/
+else
+    echo "Error: Static files directory not found"
+fi
+
 echo "Build process completed!"
