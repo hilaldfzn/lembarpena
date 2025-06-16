@@ -103,22 +103,28 @@ if os.environ.get('DATABASE_URL'):
         )
     }
 
+# Static files configuration
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
-    BASE_DIR / 'lembarpena' / 'static',
 ]
-
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'staticfiles' / 'media'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # For production
 if os.environ.get('VERCEL_ENV') == 'production':
     DEBUG = False
 else:
     DEBUG = True
+
+# Whitenoise settings
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'zip', 'gz', 'tgz', 'bz2', 'tbz', 'xz', 'br']
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

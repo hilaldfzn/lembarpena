@@ -19,6 +19,26 @@
     ],
     "routes": [
       {
+        "src": "/static/admin/(.*)",
+        "dest": "/static/admin/$1"
+      },
+      {
+        "src": "/static/Gambar/(.*)",
+        "dest": "/static/Gambar/$1"
+      },
+      {
+        "src": "/static/Poppins/(.*)",
+        "dest": "/static/Poppins/$1"
+      },
+      {
+        "src": "/static/Script/(.*)",
+        "dest": "/static/Script/$1"
+      },
+      {
+        "src": "/static/Style/(.*)",
+        "dest": "/static/Style/$1"
+      },
+      {
         "src": "/static/(.*)",
         "dest": "/static/$1"
       },
@@ -30,6 +50,5 @@
         "src": "/(.*)",
         "dest": "lembarpena/wsgi.py"
       }
-    ],
-    "outputDirectory": "staticfiles"
+    ]
 }
