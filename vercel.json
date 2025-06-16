@@ -1,0 +1,14 @@
+{
+    "builds": [
+      {
+        "src": "lembarpena/wsgi.py",
+        "use": "@vercel/python"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "lembarpena/wsgi.py"
+      }
+    ]
+}
