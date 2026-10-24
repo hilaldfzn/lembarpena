@@ -10,9 +10,12 @@ body {
     background: linear-gradient(#273faa, #010246);
 }
 
+/* .container juga class Bootstrap (padding 12px), jadi padding di-reset agar gambar menempel ke tepi kartu */
 .container {
     display: flex;
     max-width: 850px;
+    padding: 0;
+    overflow: hidden;
     background: #fff;
     border-radius: 15px;
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
@@ -23,15 +26,15 @@ body {
 }
 
 form {
-    width: 250px;
-    margin: 60px auto;
+    width: 300px;
+    margin: 56px auto;
 }
 
 h1 {
     text-align: center;
     font-family: 'Poppins', sans-serif;
-    font-weight: 700; 
-
+    font-weight: 700;
+    margin-bottom: 16px;
 }
 
 hr {
@@ -41,16 +44,16 @@ hr {
 form label {
     display: block;
     font-size: 16px;
-    font-weight: 400;
-    padding: 5px;
+    font-weight: 500;
+    margin: 12px 0 6px;
 }
 
 input {
     width: 100%;
-    margin: 2px;
+    margin: 0;
     border: none;
     outline: none;
-    padding: 8px;
+    padding: 8px 12px;
     border-radius: 5px;
     border: 1px solid gray;
 }
@@ -64,7 +67,7 @@ button {
     color: #fff;
     font-size: 16px;
     cursor: pointer;
-    margin-top: 20px;
+    margin-top: 24px;
     border-radius: 5px;
     background: #010246;
     transition: background 0.2s ease;
@@ -72,6 +75,20 @@ button {
 
 button:hover {
     background: #3262ff;
+}
+
+form p {
+    margin: 16px 0 0;
+    text-align: center;
+}
+
+form p a {
+    white-space: nowrap;
+}
+
+form p.login-error {
+    color: #c0392b;
+    font-size: 14px;
 }
 
 .right {
@@ -85,19 +102,18 @@ button:hover {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-top-right-radius: 15px;
-    border-bottom-right-radius: 15px;
 }
 
 @media (max-width: 880px) {
     .container {
         flex-direction: column;
         align-items: center;
+        width: calc(100% - 32px);
     }
 
     form {
         width: 90%;
-        margin: 20px auto;
+        margin: 32px auto 24px;
     }
 
     .login {
@@ -111,7 +127,9 @@ button:hover {
 
     .right img {
         position: static;
-        width: 80%;
-        height: auto;
+        width: 90%;
+        height: 200px;
+        margin-bottom: 24px;
+        border-radius: 10px;
     }
 }
