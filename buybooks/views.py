@@ -9,14 +9,13 @@ from django.http import HttpResponseNotFound
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
+from main.utils import get_last_login
 
 @login_required(login_url='/login')
 def show_buybooks(request):
     books = Book.objects.all()
     form = AddToCart()
-    last_login = request.COOKIES['last_login']
-    parsed_date_time = datetime.strptime(last_login, '%Y-%m-%d %H:%M:%S.%f')
-    formatted_without_ms = parsed_date_time.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_without_ms = get_last_login(request)
     context = {
         'books': books,
         'form' : form,
@@ -55,14 +54,13 @@ def show_cart(request):
             'title': item.book.title,
             'quantity': item.quantity,
             'subtotal': item.subtotal(),
-            'currency': item.book.currency
+            'currency': item.book.currency,
+            'is_ordered': item.is_ordered,
         }
         for item in cart_items
     ]
 
-    last_login = request.COOKIES['last_login']
-    parsed_date_time = datetime.strptime(last_login, '%Y-%m-%d %H:%M:%S.%f')
-    formatted_without_ms = parsed_date_time.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_without_ms = get_last_login(request)
     
     context = {
         'cart_data': cart_data,

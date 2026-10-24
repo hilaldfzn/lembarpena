@@ -14,6 +14,7 @@ from registerbook.models import Book
 import json
 #IMPORT BUAT USER PURA PURAAN
 from django.contrib.auth.models import User
+from main.utils import get_last_login
 # USER_BARU = User(id = 1 , pk = 1, username="Bryan")
 # USER_BARU.save()
 # Create your views here.
@@ -21,9 +22,7 @@ from django.contrib.auth.models import User
 def show_forum(request):
     questions = ForumHead.objects.all()
     comments = ForumComment.objects.all()
-    last_login = request.COOKIES['last_login']
-    parsed_date_time = datetime.strptime(last_login, '%Y-%m-%d %H:%M:%S.%f')
-    formatted_without_ms = parsed_date_time.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_without_ms = get_last_login(request)
     context = {
         'user' : request.user,
         'name':request.user.username,
@@ -56,7 +55,7 @@ def create_question(request):
         #     }
         # }
         new_question.save()
-        # return JsonResponse(result)
+        return JsonResponse({"status": "success"}, status=201)
     return HttpResponseNotFound()
 
 @login_required(login_url='/login/')
@@ -279,9 +278,7 @@ def book_details(request, id):
 def show_forumcomments(request, id_head):
     question = ForumHead.objects.get(pk = id_head)
     comments = ForumComment.objects.filter(comment_to=question)
-    last_login = request.COOKIES['last_login']
-    parsed_date_time = datetime.strptime(last_login, '%Y-%m-%d %H:%M:%S.%f')
-    formatted_without_ms = parsed_date_time.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_without_ms = get_last_login(request)
     context = {
         'name' : request.user,
         'question': question,

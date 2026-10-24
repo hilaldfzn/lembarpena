@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages 
 import datetime
 from datetime import datetime
+from main.utils import get_last_login
 
 @login_required
 def show_book_profile(request):
@@ -22,7 +23,7 @@ def show_book_profile(request):
             book = get_object_or_404(Book, id=book_id)
             preference = form.cleaned_data['preference']
             Wishlist.objects.create(user=request.user, book=book, preference=preference)
-        return redirect('bookprofile')
+        return redirect('wishlist:bookprofile')
     
     rating = request.GET.get('rating')
     if rating and rating != ''and rating != 'All Ratings':
@@ -33,9 +34,7 @@ def show_book_profile(request):
         books = Book.objects.all()
     
     form = AddToWishlistForm()
-    last_login = request.COOKIES['last_login']
-    parsed_date_time = datetime.strptime(last_login, '%Y-%m-%d %H:%M:%S.%f')
-    formatted_without_ms = parsed_date_time.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_without_ms = get_last_login(request)
 
     context = {
         'books': books,
@@ -47,9 +46,7 @@ def show_book_profile(request):
 
 def show_book_details(request, book_id):
     book = get_object_or_404(Book, pk=book_id)
-    last_login = request.COOKIES['last_login']
-    parsed_date_time = datetime.strptime(last_login, '%Y-%m-%d %H:%M:%S.%f')
-    formatted_without_ms = parsed_date_time.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_without_ms = get_last_login(request)
 
     return render(request, 'book_details.html', {'book': book, 'last_login' : formatted_without_ms})
 
@@ -72,11 +69,10 @@ def add_to_wishlist(request):
             return JsonResponse({'status': 'error', 'message': 'Form is not valid.'})
     return JsonResponse({'status': 'error', 'message': 'Invalid request.'})
 
+@login_required(login_url='/login')
 def mywishlist(request):
     wishlist_books = Wishlist.objects.filter(user=request.user)
-    last_login = request.COOKIES['last_login']
-    parsed_date_time = datetime.strptime(last_login, '%Y-%m-%d %H:%M:%S.%f')
-    formatted_without_ms = parsed_date_time.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_without_ms = get_last_login(request)
 
     context = {
         'wishlist_books': wishlist_books,
@@ -95,9 +91,7 @@ def delete_wishlist_item(request, item_id):
 
 def get_books(request):
     rating = request.GET.get('rating')
-    last_login = request.COOKIES['last_login']
-    parsed_date_time = datetime.strptime(last_login, '%Y-%m-%d %H:%M:%S.%f')
-    formatted_without_ms = parsed_date_time.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_without_ms = get_last_login(request)
 
     books = Book.objects.all()
     if rating:
