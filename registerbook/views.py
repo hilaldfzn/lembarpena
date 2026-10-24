@@ -7,15 +7,14 @@ from django.core import serializers
 from .models import Book
 from datetime import datetime
 from .models import Notification
+from main.utils import get_last_login
 
 
 @login_required(login_url='/login')
 def show_registered_books(request):
     books = Book.objects.all()
     
-    last_login = request.COOKIES['last_login']
-    parsed_date_time = datetime.strptime(last_login, '%Y-%m-%d %H:%M:%S.%f')
-    formatted_without_ms = parsed_date_time.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_without_ms = get_last_login(request)
     context = {
         'last_login' : formatted_without_ms,
         'username': request.user,
@@ -26,12 +25,7 @@ def show_registered_books(request):
 
 @login_required(login_url='/login')
 def show_received_orders(request):
-    last_login = request.COOKIES.get('last_login')
-    if last_login:
-        parsed_date_time = datetime.strptime(last_login, '%Y-%m-%d %H:%M:%S.%f')
-        formatted_without_ms = parsed_date_time.strftime('%Y-%m-%d %H:%M:%S')
-    else:
-        formatted_without_ms = ""
+    formatted_without_ms = get_last_login(request)
 
     notifications = Notification.objects.all().order_by('-timestamp')
 

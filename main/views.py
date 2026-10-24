@@ -11,6 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from django.core import serializers
 from django.contrib.auth.decorators import login_required
+from main.utils import get_last_login
 
 # Create your views here.
 def show_landing_page(request):
@@ -23,9 +24,7 @@ def show_landing_page(request):
 @login_required(login_url='/login')
 @csrf_exempt
 def show_landing_page_logged_in(request):
-    last_login = request.COOKIES['last_login']
-    parsed_date_time = datetime.strptime(last_login, '%Y-%m-%d %H:%M:%S.%f')
-    formatted_without_ms = parsed_date_time.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_without_ms = get_last_login(request)
     context = {'last_login': formatted_without_ms,}
     return render(request, "landingpageafterlogin.html", context)
 
@@ -76,7 +75,7 @@ def logout_user(request):
     logout(request)
     response = HttpResponseRedirect(reverse('main:show_landing_page'))
     response.delete_cookie('last_login')
-    return render(request, 'landingpage.html', {})
+    return response
 
 def get_user_json(request):
     notif = Profile.objects.all()

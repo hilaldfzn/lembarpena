@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 import datetime
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
+from main.utils import get_last_login
 
 
 
@@ -18,9 +19,7 @@ def show_checkout(request):
     form = CheckoutForm()
     cart_items = CartItem.objects.filter(user=request.user, is_ordered=True)
     total_price = sum(item.subtotal() for item in cart_items)
-    last_login = request.COOKIES['last_login']
-    parsed_date_time = datetime.strptime(last_login, '%Y-%m-%d %H:%M:%S.%f')
-    formatted_without_ms = parsed_date_time.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_without_ms = get_last_login(request)
     context = {
         'cart_items': cart_items, 
         'total_price': total_price,
@@ -90,13 +89,8 @@ def checkout_ajax(request):
             return HttpResponseRedirect(reverse('buybooks:show_cart'))
         
         return HttpResponseNotFound()
-    except: 
-        return JsonResponse({"user" : user, 
-                             "items" : items, 
-                             "alamat" : alamat, 
-                             "metode_pembayaran" : metode_pembayaran,
-                             "total_price" : total_price,
-                             "new_item" : new_item})
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
 @login_required
 @csrf_exempt
@@ -135,9 +129,7 @@ def checkout_flutter(request):
 @login_required(login_url='/login')
 def show_myorder(request):
     orders = Checkout.objects.filter(user = request.user)
-    last_login = request.COOKIES['last_login']
-    parsed_date_time = datetime.strptime(last_login, '%Y-%m-%d %H:%M:%S.%f')
-    formatted_without_ms = parsed_date_time.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_without_ms = get_last_login(request)
 
     context = {
         'orders': orders,
@@ -146,6 +138,7 @@ def show_myorder(request):
     }
     return render(request, 'myorder.html', context)
 
+@login_required(login_url='/login')
 def get_order_json(request):
     orders = Checkout.objects.filter(user=request.user)
     return HttpResponse(serializers.serialize('json', orders))
@@ -168,18 +161,22 @@ def get_order_json_all(request):
     json_data = json.dumps(order_data)
     return HttpResponse(json_data, content_type="application/json")
 
+@login_required(login_url='/login')
 def get_order_json_cc(request):
-    orders = Checkout.objects.filter(user=request.user, metode_pembayaran="kartu_kredit")
+    orders = Checkout.objects.filter(user=request.user, metode_pembayaran="Kartu Kredit")
     return HttpResponse(serializers.serialize('json', orders), content_type="application/json")
 
+@login_required(login_url='/login')
 def get_order_json_dc(request):
-    orders = Checkout.objects.filter(user=request.user, metode_pembayaran="kartu_debit")
+    orders = Checkout.objects.filter(user=request.user, metode_pembayaran="Kartu Debit")
     return HttpResponse(serializers.serialize('json', orders), content_type="application/json")
 
+@login_required(login_url='/login')
 def get_order_json_tf(request):
-    orders = Checkout.objects.filter(user=request.user, metode_pembayaran="transfer_bank")
+    orders = Checkout.objects.filter(user=request.user, metode_pembayaran="Transfer Bank")
     return HttpResponse(serializers.serialize('json', orders), content_type="application/json")
 
+@login_required(login_url='/login')
 def get_order_json_ew(request):
-    orders = Checkout.objects.filter(user=request.user, metode_pembayaran="e_wallet")
+    orders = Checkout.objects.filter(user=request.user, metode_pembayaran="E-Wallet")
     return HttpResponse(serializers.serialize('json', orders), content_type="application/json")

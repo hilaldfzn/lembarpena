@@ -10,8 +10,10 @@ from main.models import Profile
 
 @csrf_exempt
 def login(request):
-    username = request.POST['username']
-    password = request.POST['password']
+    if request.method != 'POST':
+        return JsonResponse({"status": False, "message": "Method not allowed."}, status=405)
+    username = request.POST.get('username')
+    password = request.POST.get('password')
     user = authenticate(username=username, password=password)
     if user is not None:
         if user.is_active:

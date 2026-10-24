@@ -23,9 +23,11 @@ env = environ.Env()
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-tezdpwt*m&iicr=&%&7b9yo@qjs6mxo(sou@&g0z()%z40^s6s'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tezdpwt*m&iicr=&%&7b9yo@qjs6mxo(sou@&g0z()%z40^s6s')
 
 PRODUCTION = env.bool('PRODUCTION', False)
+# Vercel men-set VERCEL=1 saat build dan runtime
+IS_VERCEL = os.environ.get('VERCEL') == '1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -52,14 +54,14 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'lembarpena.urls'
@@ -102,6 +104,8 @@ if os.environ.get('DATABASE_URL'):
             conn_health_checks=True,
         )
     }
+    # Connection string Neon/Supabase di Vercel lewat pooler (pgbouncer), yang tidak mendukung server-side cursor
+    DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -153,7 +157,12 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SAMESITE = 'None'
+CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app', 'http://localhost:8000', 'http://127.0.0.1:8000']
+
+# Cookie cross-site (SameSite=None) dibutuhkan app Flutter, tapi wajib Secure sehingga hanya jalan di HTTPS.
+# Di lokal (HTTP) pakai default Django supaya login web tetap bisa dicoba.
+if IS_VERCEL:
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SAMESITE = 'None'
+    SESSION_COOKIE_SAMESITE = 'None'
