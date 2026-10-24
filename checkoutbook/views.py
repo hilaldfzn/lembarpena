@@ -1,4 +1,5 @@
 import json
+from decimal import Decimal
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponseNotFound, HttpResponse, JsonResponse
 from django.urls import reverse
@@ -102,7 +103,7 @@ def checkout_flutter(request):
         data = json.loads(request.body)
         alamat = data["alamat"]
         metode_pembayaran = data["metode_pembayaran"]
-        total_price = float(data["total_harga"])
+        total_price = Decimal(str(data["total_harga"]))
         new_item = Checkout(
                         user=user, 
                         alamat=alamat, 
@@ -144,7 +145,10 @@ def get_order_json(request):
     return HttpResponse(serializers.serialize('json', orders))
 
 def get_order_json_all(request):
-    orders = Checkout.objects.all()
+    # Used by the Flutter app; only ever return the caller's own orders.
+    if not request.user.is_authenticated:
+        return JsonResponse({"status": "error", "message": "Silakan login terlebih dahulu."}, status=401)
+    orders = Checkout.objects.filter(user=request.user)
     order_data = [
         {
             'model' : "checkoutbook.checkout",
@@ -153,7 +157,7 @@ def get_order_json_all(request):
                 'user': order.user.username,
                 'alamat' : order.alamat,
                 'metode_pembayaran': order.metode_pembayaran,
-                'total_price' : order.total_price,
+                'total_price' : float(order.total_price),
             }
         }
         for order in orders

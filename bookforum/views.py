@@ -244,7 +244,9 @@ def show_comments_json(request):
     return HttpResponse(serializers.serialize('json', data), content_type='application/json')
 
 def show_uniquecomments_json(request, id):
-    question = ForumHead.objects.get(pk = id)
+    question = ForumHead.objects.filter(pk = id).first()
+    if question is None:
+        return JsonResponse({"status": "error", "message": "Forum tidak ditemukan."}, status=404)
     comments = ForumComment.objects.filter(comment_to=question)
     serialized_data = []
     for model in comments:
